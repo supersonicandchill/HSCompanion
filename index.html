@@ -1,417 +1,1126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
-<title>Away Game — Christian Parent’s Playbook</title>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSTAR.EXE — Free Country, USA Explorer</title>
 <style>
+:root {
+  --yellow: #FFE033;
+  --red:    #E8362A;
+  --blue:   #5B8FD4;
+  --green:  #5CB85C;
+  --bg:     #12192b;
+  --bg2:    #1a2440;
+  --bg3:    #1e2e55;
+  --card:   #1e2a4a;
+  --border: #2d4070;
+  --text:   #ddd8c0;
+  --muted:  #7a8fbb;
+  --orange: #ff9f43;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #f8f9fa; font-family: 'DM Sans', system-ui, sans-serif; color: #1a1a1a; line-height: 1.6; }
-button { cursor: pointer; }
-.progress-bar { height: 10px; background: #e9ecef; border-radius: 9999px; overflow: hidden; }
-.progress-fill { height: 100%; transition: width 0.5s ease; }
-.team-card { background: #fff; border: 1px solid #dee2e6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
-.delete-btn { background: #fee2e2; color: #ef4444; border: none; width: 32px; height: 32px; border-radius: 8px; font-size: 18px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+/* HEADER */
+.header {
+  background: var(--bg2);
+  border-bottom: 3px solid var(--yellow);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+.logo {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 var(--red);
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.logo span { color: var(--red); }
+.logo small {
+  display: block;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: var(--blue);
+  text-shadow: none;
+  letter-spacing: 1px;
+  margin-top: 3px;
+  font-weight: normal;
+}
+.search-wrap { flex: 1; max-width: 620px; position: relative; }
+#globalSearch {
+  width: 100%;
+  background: var(--bg3);
+  border: 2px solid var(--blue);
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 15px;
+  padding: 8px 46px 8px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+#globalSearch:focus { border-color: var(--yellow); }
+#globalSearch::placeholder { color: var(--muted); opacity: 0.8; }
+.sbtn {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  background: var(--blue);
+  border: none;
+  color: white;
+  width: 44px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.15s;
+}
+.sbtn:hover { background: var(--yellow); color: var(--bg); }
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--bg2);
+  border: 2px solid var(--yellow);
+  z-index: 300;
+  max-height: 400px;
+  overflow-y: auto;
+  display: none;
+}
+.dropdown.open { display: block; }
+.ddi {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  transition: background 0.1s;
+}
+.ddi:hover { background: var(--bg3); }
+.ddi:last-child { border-bottom: none; }
+.dbadge {
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.bc { background: var(--red); color: #fff; }
+.be { background: #1a5c3a; color: var(--green); border: 1px solid var(--green); }
+.bg { background: var(--bg3); color: var(--green); border: 1px solid var(--green); }
+.bw { background: var(--bg3); color: var(--blue); border: 1px solid var(--blue); }
+.dname { font-size: 15px; font-weight: bold; color: var(--yellow); }
+.dsub  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.dempty { padding: 18px; text-align: center; color: var(--muted); font-size: 13px; }
+/* STAR COUNTER */
+.star-ct {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--yellow);
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.star-ct:hover { border-color: var(--yellow); }
+/* TABS */
+.tabs {
+  display: flex;
+  background: var(--bg2);
+  border-bottom: 2px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--yellow); border-bottom-color: var(--yellow); }
+/* VIEWS */
+.view { display: none; padding: 20px; }
+.view.active { display: block; }
+/* SECTION TITLE */
+.stitle {
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  padding-left: 10px;
+  border-left: 3px solid var(--yellow);
+}
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--yellow);
+  transform: scaleX(0);
+  transition: transform 0.2s;
+  transform-origin: left;
+}
+.card:hover { border-color: var(--yellow); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+.card:hover::after { transform: scaleX(1); }
+.cem  { font-size: 34px; display: block; margin-bottom: 8px; }
+.cnm  { font-size: 17px; font-weight: bold; color: var(--yellow); margin-bottom: 4px; line-height: 1.3; }
+.csub { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.ctag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  margin-top: 8px;
+  background: var(--bg3);
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  text-transform: uppercase;
+}
+/* QUICK TAGS */
+.qtags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0; }
+.qtag {
+  background: var(--bg3);
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  font-size: 13px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.qtag:hover { background: var(--blue); color: white; }
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 32px 20px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.hero h2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--red);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.hero p { color: var(--muted); max-width: 560px; margin: 0 auto 4px; font-size: 13px; line-height: 1.7; }
+.fake-st { font-size: 13px; color: var(--green); margin: 10px 0; font-style: italic; min-height: 20px; }
+/* WIKI PANEL */
+.wp {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--yellow);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.wph { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+.wpe { font-size: 56px; flex-shrink: 0; }
+.wpt h1 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 var(--red);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.wtype {
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  padding: 2px 7px;
+  display: inline-block;
+  text-transform: uppercase;
+}
+.wext { font-size: 13px; line-height: 1.8; color: var(--text); margin-bottom: 14px; }
+.wext em { color: var(--muted); }
+.wlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  text-decoration: none;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.wlink:hover { color: var(--yellow); border-color: var(--yellow); }
+/* DETAIL SECTION */
+.dsec { background: var(--card); border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; }
+.dsec h3 {
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  color: var(--text);
+}
+.chip:hover { border-color: var(--yellow); color: var(--yellow); }
+/* BACK */
+.back {
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  background: none;
+  margin-bottom: 16px;
+  transition: all 0.12s;
+}
+.back:hover { color: var(--yellow); border-color: var(--yellow); }
+/* GAG CARD */
+.gc {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--green);
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.gc:hover { border-color: var(--yellow); border-left-color: var(--yellow); }
+.gc h3 { font-size: 14px; font-weight: bold; color: var(--green); margin-bottom: 6px; }
+.gtag  { font-size: 13px; color: var(--yellow); margin-bottom: 6px; font-style: italic; }
+.gc p  { color: var(--muted); font-size: 13px; line-height: 1.5; }
+/* FAN PATH */
+.fp {
+  background: linear-gradient(135deg, var(--bg3), var(--bg2));
+  border: 2px solid var(--yellow);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.fp h3 { font-size: 16px; font-weight: bold; color: var(--yellow); margin-bottom: 10px; }
+.fp p  { color: var(--muted); font-size: 13px; margin-bottom: 14px; line-height: 1.6; }
+.flist { list-style: none; }
+.flist li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.flist li:hover { color: var(--yellow); }
+.fnum  { font-size: 9px; font-weight: bold; color: var(--muted); min-width: 40px; letter-spacing: 1px; }
+.fnote { margin-left: auto; font-size: 11px; color: var(--muted); }
+/* TOAST / ACH */
+.toast {
+  position: fixed;
+  bottom: 48px; right: 18px;
+  background: var(--yellow);
+  color: var(--bg);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 12px 16px;
+  max-width: 280px;
+  line-height: 1.6;
+  box-shadow: 4px 4px 0 var(--red);
+  z-index: 9000;
+  transform: translateX(360px);
+  transition: transform 0.3s;
+}
+.toast.show { transform: translateX(0); }
+.ach {
+  position: fixed;
+  top: 72px; right: 18px;
+  background: var(--green);
+  color: var(--bg);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 12px 16px;
+  max-width: 260px;
+  line-height: 1.6;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+  z-index: 9000;
+  transform: translateX(360px);
+  transition: transform 0.3s;
+}
+.ach.show { transform: translateX(0); }
+.ach-lbl { font-size: 9px; opacity: 0.8; margin-bottom: 4px; letter-spacing: 1px; }
+/* KONAMI */
+#konami {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.93);
+  z-index: 99999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 40px;
+}
+#konami.show { display: flex; }
+#konami h2 {
+  font-family: Impact, 'Arial Black', sans-serif;
+  font-size: 28px;
+  letter-spacing: 4px;
+  color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--red);
+  margin-bottom: 20px;
+  animation: kp 1s infinite;
+}
+#konami p { font-size: 18px; color: var(--text); max-width: 500px; line-height: 1.6; margin-bottom: 24px; }
+#konami button {
+  font-size: 11px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase;
+  background: var(--red); color: white; border: none; padding: 12px 24px; cursor: pointer;
+}
+@keyframes kp { 0%,100%{opacity:1} 50%{opacity:0.5} }
+/* HIDDEN STAR */
+.hstar {
+  position: fixed;
+  font-size: 18px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 500;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+  animation: sf 8s ease-in-out infinite;
+}
+.hstar:hover { opacity: 1; }
+@keyframes sf { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+/* STATUS BAR */
+.statusbar {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 5px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--muted);
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  letter-spacing: 1px;
+}
+.wsdot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.wsdot.off { background: var(--red); }
+/* WIKI SEARCH */
+.wsrow { display: flex; gap: 10px; margin-bottom: 20px; }
+.wsrow input {
+  flex: 1;
+  background: var(--bg3); border: 2px solid var(--blue);
+  color: var(--text); font-family: 'Courier New', monospace; font-size: 14px;
+  padding: 8px 12px; outline: none;
+}
+.wsrow input:focus { border-color: var(--yellow); }
+.wsrow button {
+  background: var(--blue); border: none; color: white;
+  font-size: 11px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;
+  padding: 0 18px; cursor: pointer;
+}
+.wsrow button:hover { background: var(--yellow); color: var(--bg); }
+.main { padding-bottom: 36px; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--bg3); }
+::-webkit-scrollbar-thumb:hover { background: var(--blue); }
+@media(max-width:600px){
+  .header{ flex-wrap:wrap; gap:8px; }
+  .logo{ font-size:18px; }
+  .grid{ grid-template-columns:1fr 1fr; }
+  .wph{ flex-direction:column; }
+  .wpe{ font-size:40px; }
+  .hero h2{ font-size:20px; }
+}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel" data-presets="react">
-const { useState } = React;
 
-// ─── STORAGE ──────────────────────────────────────────────────────────────────
-function load(key, fb) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch { return fb; } }
-function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
-let _c = Date.now();
-function uid() { return "x" + (++_c).toString(36); }
+<div id="konami">
+  <h2>CHEAT CODE ACTIVATED</h2>
+  <p id="kmsg"></p>
+  <button onclick="document.getElementById('konami').classList.remove('show')">OKAY COOL</button>
+</div>
 
-// ─── COLORS ───────────────────────────────────────────────────────────────────
-const C = {
-  bg0: "#f8f9fa", bg1: "#ffffff", bg2: "#f1f3f5", bg3: "#e9ecef",
-  border: "#dee2e6", borderHi: "#ff8c00",
-  text: "#1a1a1a", textSub: "#495057", textMuted: "#6c757d",
-  orange: "#ff8c00", green: "#00b36b"
-};
+<div class="hstar" id="hstar" onclick="clickStar()">&#11088;</div>
+<div class="toast" id="toast"></div>
+<div class="ach"   id="ach"></div>
 
-// ─── VIRTUES (Complete) ───────────────────────────────────────────────────────
-const VIRTUES = {
-  L: { key:"L", label:"Love", icon:"❤️", tagline:"Others-first in a me-first culture", color:"#ff4d4d", bg:"#fff0f0", border:"#ff8c00",
-       scoreMeaning: "0=Never • 1=Rarely • 2=Sometimes • 3=Consistently puts others first",
-       strong: ["Celebrates teammates' success", "Shows genuine kindness", "Puts team above self"],
-       weak:   ["Selfish on and off the field", "Dismisses or ignores teammates", "Only cheers for own highlights"],
-       develop: ["After each game, name one teammate who helped you win", "Do one act of encouragement before you leave the field", "Pray: 'Lord, help me love my teammates the way You love me'"] },
-  P: { key:"P", label:"Peace", icon:"☮️", tagline:"Calm anchored in Christ", color:"#00b36b", bg:"#f0fff4", border:"#ff8c00",
-       scoreMeaning: "0=Constant anxiety • 1=Occasional calm • 2=Usually calm • 3=Peace that guards the heart",
-       strong: ["Stays composed under pressure", "Calms teammates in tense moments", "Bounces back quickly from mistakes"],
-       weak:   ["Anxious or panicked when things go wrong", "Spreads tension to teammates", "Dwells on errors during play"],
-       develop: ["Practice three slow breaths before any big moment", "Write down one worry this week and give it to God in prayer", "Memorize Phil. 4:7 — let it anchor your pregame routine"] },
-  S: { key:"S", label:"Self-Control", icon:"🛡️", tagline:"Responding instead of reacting", color:"#0077cc", bg:"#f0f8ff", border:"#ff8c00",
-       scoreMeaning: "0=Frequent outbursts • 1=Improving • 2=Usually controlled • 3=Strong self-discipline",
-       strong: ["Responds to bad calls without blowing up", "Keeps emotions in check under provocation", "Leads by example in discipline"],
-       weak:   ["Frequent outbursts or meltdowns", "Argues with officials or coaches", "Lets frustration hurt performance"],
-       develop: ["Identify your #1 trigger — name it, then make a plan for it", "After a bad call, count to 5 before you react", "Ask a trusted teammate to hold you accountable this week"] },
-  G: { key:"G", label:"Gentleness", icon:"🌿", tagline:"Strength under control", color:"#9c4dff", bg:"#f8f0ff", border:"#ff8c00",
-       scoreMeaning: "0=Often harsh • 1=Sometimes gentle • 2=Usually gentle • 3=Strength under control",
-       strong: ["Encourages struggling teammates", "Competes hard without being cruel", "Uses words that build up, not tear down"],
-       weak:   ["Often harsh or cutting with words", "Intimidates or belittles others", "Confuses meanness with toughness"],
-       develop: ["Before criticizing a teammate, ask: 'Is this kind AND true?'", "Find one struggling player this week and intentionally encourage them", "Journal: where did strength AND gentleness show up together today?"] },
-  H: { key:"H", label:"Humility", icon:"🙏", tagline:"Playing from identity, not for identity", color:"#ff8c00", bg:"#fff8f0", border:"#ff8c00",
-       scoreMeaning: "0=Very prideful • 1=Occasional humility • 2=Growing humility • 3=Consistently humble",
-       strong: ["Credits teammates and coaches for success", "Accepts coaching without defensiveness", "Secure enough to celebrate others"],
-       weak:   ["Takes credit, deflects blame", "Gets defensive when corrected", "Needs to be the star"],
-       develop: ["After your next win, publicly credit two specific teammates", "When corrected by a coach, respond: 'Thank you, I'll work on that'", "Ask yourself: 'Am I playing TO prove something or FROM knowing who I am?'"] },
-  Gr: { key:"Gr", label:"Gratitude", icon:"🙌", tagline:"Thankful in all circumstances", color:"#ffaa00", bg:"#fffdf0", border:"#ff8c00",
-       scoreMeaning: "0=Very entitled • 1=Occasional thanks • 2=Usually grateful • 3=Thankful in all circumstances",
-       strong: ["Thanks coaches, officials, and opponents", "Grateful for the opportunity to compete", "Positive attitude win or lose"],
-       weak:   ["Entitled attitude about playing time or roles", "Rarely thanks others", "Complains about conditions, calls, or teammates"],
-       develop: ["Start every practice with one thing you're grateful for about this team", "Write a one-line thank-you to a coach or teammate this week", "After a loss, find three genuine things to be thankful for before you leave"] },
-  J: { key:"J", label:"Joy", icon:"🎉", tagline:"Delight that outlasts the score", color:"#ff6600", bg:"#fff4f0", border:"#ff8c00",
-       scoreMeaning: "0=Joy is gone • 1=Rare joy • 2=Usually joyful • 3=Consistent delight",
-       strong: ["Genuine enjoyment of the game", "Joy that doesn't depend on the scoreboard", "Lifts the energy of those around them"],
-       weak:   ["Only happy when winning", "Drains team energy with negativity", "Has lost the love of the game"],
-       develop: ["Recall why you first fell in love with this sport — write it down", "Find one moment in each practice to just enjoy the game", "Remind yourself: the scoreboard is temporary, but who you're becoming is not"] }
-};
+<div class="header">
+  <div class="logo" onclick="goHome()">
+    HSTAR<span>.EXE</span>
+    <small>FREE COUNTRY, USA EXPLORER v3 &mdash; LIVE WIKI</small>
+  </div>
+  <div class="search-wrap">
+    <input type="text" id="globalSearch"
+      placeholder="search... trogdor? coach z? fhqwhgads?"
+      autocomplete="off"
+      onkeydown="if(event.key==='Enter')runSearch(this.value)">
+    <button class="sbtn" onclick="runSearch(document.getElementById('globalSearch').value)">&#128269;</button>
+    <div class="dropdown" id="dd"></div>
+  </div>
+  <div class="star-ct" onclick="showToast('Discoveries: ' + stars + '. The Tire is watching.')">
+    &#11088; <span id="sc">0</span>
+  </div>
+</div>
 
-const SCORE_LABELS = ["Missing", "Emerging", "Developing", "Strong"];
+<div class="tabs">
+  <button class="tab active"  onclick="switchTab('home',this)">&#127968; Home</button>
+  <button class="tab"         onclick="switchTab('chars',this)">&#128101; Characters</button>
+  <button class="tab"         onclick="switchTab('episodes',this)">&#128250; Episodes</button>
+  <button class="tab"         onclick="switchTab('gags',this)">&#128514; Running Gags</button>
+  <button class="tab"         onclick="switchTab('newfan',this)">&#10024; New Fan Mode</button>
+  <button class="tab"         onclick="switchTab('wiki',this)">&#128218; Wiki Search</button>
+</div>
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
-function getCombo(scores) {
-  const strong = Object.values(scores).filter(v => v === 3).length;
-  const developing = Object.values(scores).filter(v => v >= 2).length;
-  const avg = (Object.values(scores).reduce((a,b) => a + b, 0) / 7).toFixed(1);
+<div class="main">
 
-  if (strong >= 5) return { label: "Kingdom Competitor", icon: "🏆", desc: `Avg ${avg}/3`, color: C.orange, progress: 95 };
-  if (developing >= 6) return { label: "Strong Disciple", icon: "🌟", desc: `Avg ${avg}/3`, color: C.green, progress: 85 };
-  return { label: "Developing Disciple", icon: "🌱", desc: `Avg ${avg}/3`, color: "#fd7e14", progress: Math.round(developing / 7 * 100) };
-}
-
-function calculateTeamProgress(athletes) {
-  if (athletes.length === 0) return { avgScore: "0.0", strongPercent: 0, totalAthletes: 0 };
-  let totalScore = 0, totalStrong = 0;
-  const totalVirtues = athletes.length * 7;
-
-  athletes.forEach(a => {
-    const scores = Object.values(a.scores || {});
-    totalScore += scores.reduce((a,b) => a + b, 0);
-    totalStrong += scores.filter(v => v === 3).length;
-  });
-
-  const avgScore = (totalScore / totalVirtues).toFixed(1);
-  const strongPercent = Math.round((totalStrong / totalVirtues) * 100);
-
-  return { avgScore, strongPercent, totalAthletes: athletes.length };
-}
-
-// ─── MODALS ───────────────────────────────────────────────────────────────────
-function Modal({title, onClose, children}) {
-  return (
-    <div style={{position:"fixed", inset:0, background:"rgba(0,0,0,0.75)", zIndex:500, display:"flex", alignItems:"center", justifyContent:"center"}} onClick={e=>e.target===e.currentTarget&&onClose()}>
-      <div style={{background:"#fff", borderRadius:16, width:"92%", maxWidth:720, maxHeight:"92vh", overflow:"hidden", boxShadow:"0 25px 70px rgba(0,0,0,0.25)"}}>
-        <div style={{padding:"18px 24px", borderBottom:"1px solid #dee2e6", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-          <span style={{fontSize:21, fontWeight:800, color:C.orange}}>{title}</span>
-          <button onClick={onClose} style={{fontSize:24, background:"none", border:"none", color:"#666"}}>✕</button>
-        </div>
-        <div style={{padding:24, overflowY:"auto", maxHeight:"78vh"}}>{children}</div>
-      </div>
+<div class="view active" id="view-home">
+  <div class="hero">
+    <h2>Welcome to Free Country, USA</h2>
+    <div class="fake-st" id="fst">Connecting to HRWiki...</div>
+    <p>The unofficial companion to the greatest thing that ever happened on the internet.<br>
+       Live data from the Homestar Runner Wiki &mdash; 3,413 articles at your fingertips.</p>
+    <div class="qtags">
+      <span class="qtag" onclick="doWS('Trogdor')">trogdor</span>
+      <span class="qtag" onclick="doWS('Coach Z')">coach z</span>
+      <span class="qtag" onclick="doWS('Strong Bad Email')">sbemails</span>
+      <span class="qtag" onclick="doWS('fhqwhgads')">fhqwhgads</span>
+      <span class="qtag" onclick="doWS('Teen Girl Squad')">teen girl squad</span>
+      <span class="qtag" onclick="doWS('Homsar')">homsar</span>
+      <span class="qtag" onclick="doWS('Strong Badia')">strong badia</span>
+      <span class="qtag" onclick="doWS('Decemberween')">decemberween</span>
+      <span class="qtag" onclick="doWS('Peasants Quest')">peasant's quest</span>
     </div>
-  );
-}
+  </div>
+  <div class="stitle">Main Characters &mdash; Click to Explore</div>
+  <div class="grid" id="hcg"></div>
+  <div class="stitle">Essential Episodes</div>
+  <div class="grid" id="heg"></div>
+  <div class="stitle">Running Gags</div>
+  <div class="grid" id="hgg"></div>
+</div>
 
-function ConfirmDelete({name, onConfirm, onCancel}) {
-  return (
-    <Modal title="Delete Athlete" onClose={onCancel}>
-      <p style={{fontSize:16, marginBottom:24}}>Are you sure you want to permanently delete <strong>{name}</strong>?</p>
-      <p style={{color:"#ef4444", marginBottom:24}}>This cannot be undone.</p>
-      <div style={{display:"flex", gap:12, justifyContent:"flex-end"}}>
-        <button onClick={onCancel} style={{padding:"12px 24px", border:"none", background:"#ddd", borderRadius:10}}>Cancel</button>
-        <button onClick={onConfirm} style={{padding:"12px 28px", border:"none", background:"#ef4444", color:"#fff", borderRadius:10, fontWeight:700}}>Yes, Delete</button>
-      </div>
-    </Modal>
-  );
-}
+<div class="view" id="view-chars">
+  <div class="stitle">All Characters</div>
+  <div class="grid" id="cg"></div>
+</div>
 
-// ─── EDIT MODAL ───────────────────────────────────────────────────────────────
-function EditModal({person, onSave, onClose}) {
-  const [data, setData] = useState({...person, notes: person.notes || ""});
+<div class="view" id="view-episodes">
+  <div class="stitle">Essential Episodes</div>
+  <div class="grid" id="eg"></div>
+</div>
 
-  const updateScore = (key, value) => setData(prev => ({...prev, scores: {...prev.scores, [key]: Number(value)}}));
+<div class="view" id="view-gags">
+  <div class="stitle">Running Gags Database</div>
+  <div id="gl"></div>
+</div>
 
-  return (
-    <Modal title={data.id ? "Edit Athlete" : "Add New Athlete"} onClose={onClose}>
-      <input placeholder="Athlete Name *" value={data.name||""} onChange={e=>setData({...data,name:e.target.value})} style={{width:"100%", padding:14, fontSize:17, border:`2px solid ${C.border}`, borderRadius:10, marginBottom:12}} />
-      <input placeholder="Role / Team (optional)" value={data.role||""} onChange={e=>setData({...data,role:e.target.value})} style={{width:"100%", padding:14, fontSize:17, border:`2px solid ${C.border}`, borderRadius:10, marginBottom:20}} />
+<div class="view" id="view-newfan">
+  <div class="stitle">Start Here &mdash; Curated Paths</div>
+  <div id="fp"></div>
+</div>
 
-      <div style={{marginBottom:20}}>
-        <div style={{fontWeight:700, color:C.orange, marginBottom:12}}>Score Each Virtue (0–3)</div>
-        {Object.values(VIRTUES).map(t => (
-          <div key={t.key} style={{marginBottom:16, padding:16, background:"#fff", border:`1px solid ${t.border}`, borderRadius:12}}>
-            <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:8}}>
-              <span style={{fontSize:28}}>{t.icon}</span>
-              <div style={{flex:1, fontWeight:700, color:t.color}}>{t.label}</div>
-            </div>
-            <div style={{fontSize:13, color:"#555", marginBottom:10}}>{t.scoreMeaning}</div>
-            <div style={{display:"flex", gap:6}}>
-              {[0,1,2,3].map(n => (
-                <button key={n} onClick={()=>updateScore(t.key,n)} style={{flex:1, padding:"10px", borderRadius:8, background: data.scores[t.key]===n ? C.orange : "#f1f3f5", color: data.scores[t.key]===n ? "#fff" : "#333", fontWeight:700}}>
-                  {n}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+<div class="view" id="view-wiki">
+  <div class="stitle">Live Wiki Search &mdash; All 3,413 HRWiki Articles</div>
+  <div class="wsrow">
+    <input type="text" id="wi" placeholder="search any article..." onkeydown="if(event.key==='Enter')runWS(this.value)">
+    <button onclick="runWS(document.getElementById('wi').value)">Search Wiki</button>
+  </div>
+  <div id="wr"></div>
+</div>
 
-      <div style={{marginBottom:20}}>
-        <div style={{fontWeight:700, marginBottom:8}}>Notes / Observations / Prayers</div>
-        <textarea value={data.notes} onChange={e=>setData({...data, notes:e.target.value})} placeholder="Key moments, growth areas, specific prayers..." style={{width:"100%", height:130, padding:14, border:`2px solid ${C.border}`, borderRadius:10, resize:"vertical"}} />
-      </div>
+<div class="view" id="view-detail">
+  <div id="dc"></div>
+</div>
 
-      <div style={{display:"flex", gap:12, justifyContent:"flex-end"}}>
-        <button onClick={onClose} style={{padding:"12px 24px", border:"none", background:"#ddd", borderRadius:10}}>Cancel</button>
-        <button onClick={()=>onSave(data)} style={{padding:"12px 32px", border:"none", background:C.orange, color:"#fff", borderRadius:10, fontWeight:700}} disabled={!data.name?.trim()}>💾 Save Changes</button>
-      </div>
-    </Modal>
-  );
-}
+</div>
 
-// ─── PERSON DETAIL ────────────────────────────────────────────────────────────
-function PersonDetail({person, onClose, onEdit}) {
-  const [tab, setTab] = useState("assess");
-  const combo = getCombo(person.scores);
+<div class="statusbar">
+  <div class="wsdot off" id="wsd"></div>
+  <span id="wst">Connecting to HRWiki API...</span>
+  <span style="margin-left:auto">hrwiki.org/w/api.php</span>
+</div>
 
-  return (
-    <Modal title={person.name} onClose={onClose}>
-      <div style={{display:"flex", justifyContent:"space-between", marginBottom:20}}>
-        <div>
-          <div style={{fontSize:52}}>{combo.icon}</div>
-          <div style={{fontSize:24, fontWeight:800, color:combo.color}}>{combo.label}</div>
-        </div>
-        <button onClick={()=>{ onEdit(person); onClose(); }} style={{background:C.orange, color:"#fff", border:"none", padding:"10px 22px", borderRadius:10, fontWeight:700}}>✏ Edit</button>
-      </div>
+<script>
+// All data uses double quotes throughout to avoid apostrophe JS syntax errors.
+var CHARS = [
+  { id:"homestar",   name:"Homestar Runner",  emoji:"&#11088;",  tag:"Terrific athlete. Zero arms. Even fewer clues.", desc:"The ostensible star of the show. A lovable doofus with no visible arms and an absolute clueless disposition. He genuinely believes Strong Bad is his best buddy. He is wrong about almost everything and still somehow wins. His girlfriend is Marzipan.", wiki:"Homestar Runner (character)" },
+  { id:"strongbad",  name:"Strong Bad",       emoji:"&#129354;", tag:"Luchador. Email answerer. Actual superstar.", desc:"The arguable true star of the site. An egotistical villain-turned-antihero who answers fan emails, bullies everyone, and created Trogdor, launched Teen Girl Squad, and got his own video game. He wears boxing gloves and a mask at all times.", wiki:"Strong Bad" },
+  { id:"thecheat",   name:"The Cheat",        emoji:"&#11035;",  tag:"Strong Bad's loyal minion. Makes weird cartoons.", desc:"Strong Bad's ever-diligent lackey and closest confidant. The Cheat speaks only in squeaky sounds that everyone somehow understands. He created the Powered by The Cheat animation style: deliberately crude, wobbly, and beloved.", wiki:"The Cheat" },
+  { id:"strongmad",  name:"Strong Mad",       emoji:"&#128170;", tag:"Biggest. Loudest. Loves The Cheat intensely.", desc:"Strong Bad's enormous older brother. Speaks entirely in all-caps. Loves The Cheat with terrifying intensity. Simple of mind but formidable of body. Occasionally tender in ways that make everything more unsettling.", wiki:"Strong Mad" },
+  { id:"strongsad",  name:"Strong Sad",       emoji:"&#127783;", tag:"The Depressio. Surprisingly intellectual.", desc:"Strong Bad's depressive and erudite younger brother. Regularly bullied by Strong Bad. Despite being constantly miserable, he is probably the smartest character on the site. His legs look like elephant legs.", wiki:"Strong Sad" },
+  { id:"marzipan",   name:"Marzipan",         emoji:"&#127800;", tag:"The only girl. Long-suffering girlfriend.", desc:"The sole female character in the main cast. Eco-friendly, plays guitar, and dates Homestar despite everything. She also has no visible arms. Nobody has ever commented on this. She has strong opinions about many things.", wiki:"Marzipan" },
+  { id:"pompom",     name:"Pom Pom",          emoji:"&#129703;", tag:"Round. Cool. Speaks in bubbles.", desc:"A large spherical character who is apparently extremely cool and popular. Speaks only in bubbly popping sounds yet is universally understood and respected. Described as a classically trained actor. Strong Bad is jealous of him.", wiki:"Pom Pom" },
+  { id:"coachz",     name:"Coach Z",          emoji:"&#127942;", tag:"Great jorb! Inexplicable accent included.", desc:"Ostensibly a coach of something unknown. Has a thick inexplicable accent that turns basic words into disasters. Coined the phrase great jorb. His medallion says Z. He raps. Not well, but enthusiastically.", wiki:"Coach Z" },
+  { id:"bubs",       name:"Bubs",             emoji:"&#127978;", tag:"Runs the concession stand. Dubiously.", desc:"Operator of Bubs Concession Stand, which appears to sell literally anything. Streetwise, fast-talking, and well-connected. The concession stand is always open and always somehow relevant to whatever is happening.", wiki:"Bubs" },
+  { id:"homsar",     name:"Homsar",           emoji:"&#127913;", tag:"AaAaAaA. I was raised by a cup of coffee.", desc:"Originally created by Strong Bad as a joke from a typo in a fan email. Speaks entirely in surrealist non-sequiturs. His hat floats independently. He survived being crushed by a giant trophy. Nobody knows what he is.", wiki:"Homsar" },
+  { id:"kingoftown", name:"King of Town",     emoji:"&#128081;", tag:"Nominally in charge. Mainly eats things.", desc:"Nominally in charge of Free Country, USA, though his actual jurisdiction is unclear and possibly fictional. Mainly known for eating everything in sight. The Poopsmith is the only one who respects him.", wiki:"King of Town" },
+  { id:"poopsmith",  name:"The Poopsmith",    emoji:"&#128169;", tag:"Vow of silence. Shovels whatsit. Quietly menacing.", desc:"The King of Town's loyal servant whose job involves shoveling whatsit. He has taken a vow of silence. He has spoken exactly once in the entire series: sbemail 200. The heavens wept.", wiki:"The Poopsmith" }
+];
 
-      <div style={{marginBottom:24}}>
-        <div style={{display:"flex", justifyContent:"space-between", fontSize:14, marginBottom:8}}>
-          <span>Character Progress</span>
-          <span>{combo.progress}%</span>
-        </div>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{width: `${combo.progress}%`, background: combo.progress > 80 ? "linear-gradient(90deg,#00b36b,#34d399)" : combo.progress > 50 ? "linear-gradient(90deg,#ff8c00,#ffaa00)" : "#dc3545"}} />
-        </div>
-        <div style={{fontSize:13, color:C.textMuted, marginTop:6}}>
-          Last updated: {person.lastUpdated ? new Date(person.lastUpdated).toLocaleDateString() : "Never"}
-        </div>
-      </div>
+var EPS = [
+  { id:"dragon",    name:"dragon",                  emoji:"&#128009;", num:"sbemail #58",  wiki:"dragon",                   desc:"The birth of Trogdor. A fan asks Strong Bad to draw a dragon. What follows changes the internet.", full:"Strong Bad tries to draw a dragon for a fan, going through false starts including a monitor lizard and a beefy muscly arm. The result is Trogdor: a wingaling dragon-man who burnates the countryside and all the peasants. One of the most referenced pieces of internet culture ever made." },
+  { id:"japanese",  name:"japanese cartoon",         emoji:"&#9876;",   num:"sbemail #57",  wiki:"japanese cartoon",          desc:"Strong Bad imagines himself as anime. Stinkoman is born. The 20X6 universe spins out of this one email.", full:"Strong Bad describes what he would look like as a Japanese cartoon character, creating Stinkoman. The entire 20X6 alternate universe with its own cast, rules, and aesthetic spins off from this single email. Stinkoman challenges everyone to a fight and says I'm the guy approximately one thousand times." },
+  { id:"flashback", name:"flashback",                emoji:"&#128188;", num:"sbemail #100", wiki:"flashback",                 desc:"The 100th email. Strong Bad takes a trip down memory lane. His memory is spectacularly unreliable.", full:"To celebrate his 100th email, Strong Bad attempts to reminisce about his favorite previous emails. His memory is spectacularly unreliable and the flashbacks are deliberately wrong versions of real previous emails. Features almost every character in the series." },
+  { id:"altuni",    name:"alternate universe",       emoji:"&#127744;", num:"sbemail #150", wiki:"alternate universe",        desc:"Every Strong Bad variation teams up for a supergroup ballad. Old-Timey. Stinkoman. Strong Badman.", full:"For email 150, Strong Bad encounters every version of himself from across the Homestar Runner multiverse. They form a supergroup and perform a ballad. It is genuinely catchy. References nearly every alternate universe segment from the first 150 emails." },
+  { id:"emailthun", name:"email thunder",            emoji:"&#9889;",   num:"sbemail #200", wiki:"email thunder",             desc:"Email 200. The Poopsmith speaks. Theme by They Might Be Giants. Nothing is the same after.", full:"Strong Bad's 200th email celebration turns chaotic when Homestar reveals he has been running his own email show the entire time. The theme song was composed by They Might Be Giants. The Poopsmith breaks his vow of silence. Pandemonium. A long hiatus follows." },
+  { id:"iloveyou",  name:"i love you",               emoji:"&#128140;", num:"sbemail #40",  wiki:"i love you",                desc:"A fan emails as fhqwhgads. The Cheat writes a song about it. Everybody to the limit.", full:"A fan using the name fhqwhgads (pure keyboard smash) emails Strong Bad. Strong Bad likes the name so much that The Cheat writes a full song. Everybody to the limit, come on fhqwhgads. One of the most quoted emails in the entire run." },
+  { id:"teengirl",  name:"Teen Girl Squad Iss. 1",   emoji:"&#128203;", num:"sbemail #54",  wiki:"Teen Girl Squad Issue 1",   desc:"Cheerleader! So-and-So! The Ugly One! ARROWED! The debut of the crude ongoing comic.", full:"Strong Bad debuts his ongoing crude comic strip about four teen girls who die in creative ways every issue. ARROWED! The format ran for 15 issues and became one of the most beloved recurring segments on the site." },
+  { id:"marshmal",  name:"Marshmallow's Last Stand", emoji:"&#127967;", num:"Toon (2000)",  wiki:"Marshmallow's Last Stand",  desc:"One of the very first toons. Wrestling. Chaos. A genuine piece of internet history.", full:"One of the earliest toons on the site. Strong Bad bets his star against Homestar's hat on a tag-team wrestling match. Establishes that Homestar weighs exactly 100 pounds. The site itself notes this one does not hold up, which is part of its charm." }
+];
 
-      <div style={{display:"flex", borderBottom:"3px solid #ff8c00", marginBottom:20}}>
-        {["assess","develop","notes"].map(t => (
-          <button key={t} onClick={()=>setTab(t)} style={{flex:1, padding:"14px", fontWeight:700, background:tab===t?C.orange:"#f1f3f5", color:tab===t?"#fff":"#333", border:"none"}}>
-            {t==="assess"?"📊 Profile":t==="develop"?"🛠 Develop":"📝 Notes"}
-          </button>
-        ))}
-      </div>
+var GAGS = [
+  { id:"trogdor",  name:"Trogdor the Burninator", tag:"He was a dragon man. Or maybe he was just a dragon.", wiki:"Trogdor",                  desc:"Born in sbemail 58 when Strong Bad tried to draw a dragon. Trogdor became the most iconic creation from Free Country, USA. He has a single beefy arm, a wingaling, and an insatiable desire to burninate the countryside. And the peasants. And the thatched-roof cottages." },
+  { id:"holycrap", name:"Holy Crap!",              tag:"Strong Bad's signature outburst, endlessly varied.",  wiki:"Holy Crap",                 desc:"Strong Bad's most-used exclamation. Variations include What the crap and Holy crappy crap crap. He is now self-aware about it and parodies his own catchphrase in later emails. The word crap is used so frequently it ceases to mean anything." },
+  { id:"jorb",     name:"Great Jorb",              tag:"Coach Z's tragically mispronounced catchphrase.",     wiki:"Great Jorb",                desc:"Jorb is what happens when Coach Z tries to say job. His accent takes the word somewhere else entirely. Despite being completely mangled, everyone understands him. Great jorb, man. Nobody is ever sure what specific job is being praised." },
+  { id:"deleted",  name:"DELETED!",                tag:"Strong Bad's preferred resolution to most problems.", wiki:"Deleted",                   desc:"When Strong Bad is done with an email, a person, or a situation, he deletes it. Often accompanied by dramatic typing sounds and a satisfying key effect. DELETED! DELETED! DELETED! One of the most quoted things from the entire series." },
+  { id:"pbtc",     name:"Powered by The Cheat",    tag:"Intentionally terrible cartoons by The Cheat.",      wiki:"Powered by The Cheat",      desc:"When The Cheat makes a cartoon, it uses a deliberately crude wobbly animation style with misshapen characters and questionable physics. These segments became their own beloved recurring format. The worse the animation, the more everyone loves it." },
+  { id:"tgs",      name:"Teen Girl Squad",          tag:"Cheerleader! So-and-So! ARROWED!",                  wiki:"Teen Girl Squad",           desc:"Strong Bad's ongoing crude comic strip about four teen girls who die in creative ways every issue. ARROWED! The art is deliberately terrible. The deaths are gleefully cartoonish. The girls never stay dead. 15 issues total." },
+  { id:"fhqwh",    name:"fhqwhgads",                tag:"Everybody to the limit!",                           wiki:"fhqwhgads",                 desc:"Started as keyboard smash in an email subject line. Strong Bad liked it so much The Cheat wrote a full song. Everybody to the limit, come on fhqwhgads. Nobody knows what it means. It is perfect." },
+  { id:"sbadia",   name:"Strong Badia",             tag:"Population: Tire.",                                 wiki:"Strong Badia",              desc:"Strong Bad's self-declared independent nation. It is an empty lot with a stop sign and a tire. The tire has a smiley face drawn on it. Strong Bad is king. Population: Tire. It has been invaded, colonized, and fought over. The Tire has never commented." },
+  { id:"hnonseq",  name:"Homsar's Non-Sequiturs",   tag:"AaAaAaA. I was raised by a cup of coffee.",        wiki:"Homsar",                    desc:"Homsar speaks entirely in surrealist non-sequiturs that make zero contextual sense and are somehow perfectly quotable. He floats. He bounces. His hat rises independently. He survived being crushed by a giant trophy. I'm the captain of the gravy train." },
+  { id:"marzans",  name:"Marzipan's Answering Machine", tag:"Voicemails that reveal too much.",             wiki:"Marzipan's Answering Machine", desc:"A recurring series of shorts featuring voicemail messages left on Marzipan's answering machine. Ran for 17 versions. Each message reveals more about the caller than they intended. Strong Bad's messages are reliably terrible." }
+];
 
-      {tab==="assess" && Object.entries(person.scores).map(([k,v]) => {
-        const t = VIRTUES[k];
-        const showHas = v >= 2;
-        return (
-          <div key={k} style={{marginBottom:20, background:"#fff", border:`2px solid ${t.border}`, borderRadius:14, overflow:"hidden"}}>
-            <div style={{background:t.bg, padding:"16px 20px", display:"flex", alignItems:"center", gap:16}}>
-              <span style={{fontSize:42}}>{t.icon}</span>
-              <div style={{flex:1}}><div style={{fontSize:21, fontWeight:800, color:t.color}}>{t.label}</div></div>
-              <span style={{fontSize:18, fontWeight:700}}>{v}/3</span>
-            </div>
-            <div style={{padding:"20px"}}>
-              {(showHas ? t.strong : t.weak).map((s,i) => (
-                <div key={i} style={{marginBottom:6}}>{showHas?"→":"–"} {s}</div>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-
-      {tab==="develop" && (
-        <div>
-          {Object.entries(person.scores).map(([k,v]) => {
-            const t = VIRTUES[k];
-            return (
-              <div key={k} style={{marginBottom:20, background:"#fff", border:`2px solid ${t.border}`, borderRadius:14, overflow:"hidden"}}>
-                <div style={{background:t.bg, padding:"14px 20px", display:"flex", alignItems:"center", gap:12}}>
-                  <span style={{fontSize:28}}>{t.icon}</span>
-                  <div style={{fontSize:18, fontWeight:800, color:t.color, flex:1}}>{t.label}</div>
-                  <span style={{fontSize:14, color:C.textMuted, background:"#fff", padding:"4px 10px", borderRadius:20, fontWeight:700}}>{SCORE_LABELS[v]}</span>
-                </div>
-                <div style={{padding:"16px 20px"}}>
-                  {t.develop.map((step,i) => (
-                    <div key={i} style={{display:"flex", gap:12, marginBottom:10, alignItems:"flex-start"}}>
-                      <span style={{background:C.orange, color:"#fff", borderRadius:"50%", width:22, height:22, display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, fontWeight:800, flexShrink:0}}>{i+1}</span>
-                      <span style={{fontSize:14, color:C.text, lineHeight:1.5}}>{step}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {tab==="notes" && (
-        <div style={{background:"#fff", border:`1px solid ${C.border}`, borderRadius:12, padding:24, minHeight:200, whiteSpace:"pre-wrap", fontSize:15}}>
-          {person.notes || "No notes added yet."}
-        </div>
-      )}
-    </Modal>
-  );
-}
-
-const BLANK_ATHLETE = { id:"", name:"", role:"", notes:"", scores:{L:1,P:1,S:1,G:1,H:1,Gr:1,J:1}, lastUpdated: null };
-
-// ─── MAIN APP ─────────────────────────────────────────────────────────────────
-function App() {
-  const [tab, setTab] = useState("athletes");
-  const [athletes, setAthletes] = useState(() => load("awaygame_athletes_v1", []));
-  const [editing, setEditing] = useState(null);
-  const [viewing, setViewing] = useState(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
-
-  function saveAthlete(p) {
-    const updated = {...p, id: p.id || uid(), lastUpdated: Date.now()};
-    const next = p.id ? athletes.map(x => x.id === p.id ? updated : x) : [...athletes, updated];
-    setAthletes(next);
-    save("awaygame_athletes_v1", next);
-    setEditing(null);
+var PATHS = [
+  {
+    title:"&#128640; The Absolute Beginner",
+    desc:"Never seen Homestar Runner? These five things will make you understand everything. Then you will never leave.",
+    items:[
+      { num:"first", label:"Characters video: meet everyone in 3 minutes",    wiki:"Character Videos" },
+      { num:"#58",   label:"dragon: the birth of Trogdor (required viewing)", wiki:"dragon" },
+      { num:"#57",   label:"japanese cartoon: Stinkoman is born",             wiki:"japanese cartoon" },
+      { num:"#40",   label:"i love you: fhqwhgads. Trust the process.",       wiki:"i love you" },
+      { num:"???",   label:"homsar: you will have questions. That is correct.",wiki:"Homsar" }
+    ]
+  },
+  {
+    title:"&#128231; Strong Bad Email Essential 10",
+    desc:"The sbemails are the backbone. These ten are the platonic ideal of what made the internet magical from 2001 to 2008.",
+    items:[
+      { num:"#58",  label:"dragon: Trogdor. Non-negotiable.",              wiki:"dragon" },
+      { num:"#40",  label:"i love you: fhqwhgads origins",                wiki:"i love you" },
+      { num:"#57",  label:"japanese cartoon: 20X6 debut",                 wiki:"japanese cartoon" },
+      { num:"#54",  label:"teen girl squad: the comic begins",            wiki:"teen girl squad" },
+      { num:"#100", label:"flashback: milestone, dubious memories",       wiki:"flashback" },
+      { num:"#1",   label:"some kinda robot: where it all started",       wiki:"some kinda robot" },
+      { num:"#118", label:"virus: the Lappy gets a virus. Chaos.",        wiki:"virus" },
+      { num:"#150", label:"alternate universe: every Strong Bad ever",    wiki:"alternate universe" },
+      { num:"#200", label:"email thunder: The Poopsmith SPEAKS",          wiki:"email thunder" },
+      { num:"#206", label:"hremail3184: Homestar's email show revealed",  wiki:"hremail3184" }
+    ]
+  },
+  {
+    title:"&#128009; Trogdor Starter Pack",
+    desc:"You have heard of Trogdor. You want to understand Trogdor. Follow the dragon. Burninate the countryside.",
+    items:[
+      { num:"origin", label:"dragon (sbemail #58): the birth",            wiki:"dragon" },
+      { num:"song",   label:"Trogdor: the song itself",                   wiki:"Trogdor (song)" },
+      { num:"#63",    label:"the show: Trogdor on a game show",           wiki:"the show" },
+      { num:"game",   label:"Peasant's Quest: the Flash game",            wiki:"Peasant's Quest" },
+      { num:"board",  label:"Trogdor!! The Board Game: real product",     wiki:"Trogdor!! The Board Game" }
+    ]
+  },
+  {
+    title:"&#127758; Peak Internet Era (2002-2006)",
+    desc:"Your time machine back to when Flash animation ruled the earth.",
+    items:[
+      { num:"2002", label:"i love you: fhqwhgads origins",               wiki:"i love you" },
+      { num:"2003", label:"dragon: the internet changed that day",        wiki:"dragon" },
+      { num:"2003", label:"teen girl squad issue 1: ARROWED!",            wiki:"Teen Girl Squad Issue 1" },
+      { num:"2004", label:"flashback #100: milestone internet moment",    wiki:"flashback" },
+      { num:"2005", label:"bottom 10: Strong Bad's worst things",         wiki:"bottom 10" },
+      { num:"2006", label:"alternate universe #150: peak multiverse",     wiki:"alternate universe" }
+    ]
   }
+];
 
-  function deleteAthlete(id) {
-    const next = athletes.filter(a => a.id !== id);
-    setAthletes(next);
-    save("awaygame_athletes_v1", next);
-    setDeleteConfirm(null);
-    if (viewing && viewing.id === id) setViewing(null);
-  }
+// ─── STATE ───
+var WIKI_URL = "https://www.hrwiki.org/w/api.php";
+var stars = parseInt(localStorage.getItem("hs_s") || "0");
+var wikiOK = false;
+var navHist = [];
+document.getElementById("sc").textContent = stars;
 
-  const teamStats = calculateTeamProgress(athletes);
-
-  return (
-    <div style={{minHeight:"100vh", background:"#f8f9fa"}}>
-      {/* HEADER */}
-      <div style={{background:"#fff", borderBottom:"4px solid #ff8c00", padding:"0 24px", height:76, display:"flex", alignItems:"center", justifyContent:"space-between", boxShadow:"0 3px 12px rgba(0,0,0,0.1)"}}>
-        <div>
-          <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:32, letterSpacing:1.5, color:C.orange}}>AWAY GAME</div>
-          <div style={{fontSize:13, color:"#555"}}>Christian Parent’s Playbook</div>
-        </div>
-        <div style={{display:"flex", gap:8}}>
-          <button onClick={()=>setTab("athletes")} style={{padding:"10px 22px", borderRadius:10, background:tab==="athletes"?C.orange:"#fff", color:tab==="athletes"?"#fff":"#333", fontWeight:700, border:"2px solid #ff8c00"}}>👥 My Athletes</button>
-          <button onClick={()=>setTab("playbook")} style={{padding:"10px 22px", borderRadius:10, background:tab==="playbook"?C.orange:"#fff", color:tab==="playbook"?"#fff":"#333", fontWeight:700, border:"2px solid #ff8c00"}}>📖 The Playbook</button>
-        </div>
-      </div>
-
-      {tab === "athletes" && (
-        <div style={{padding:24}}>
-          {/* TEAM PROGRESS DASHBOARD */}
-          {athletes.length > 0 && (
-            <div className="team-card" style={{marginBottom:32}}>
-              <div style={{fontSize:20, fontWeight:800, marginBottom:16, color:C.orange}}>Team Progress Overview</div>
-              <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))", gap:20}}>
-                <div>
-                  <div style={{fontSize:13, color:C.textMuted}}>Team Average Score</div>
-                  <div style={{fontSize:32, fontWeight:800, color:C.orange}}>{teamStats.avgScore}</div>
-                  <div style={{fontSize:13}}>out of 3.0</div>
-                </div>
-                <div>
-                  <div style={{fontSize:13, color:C.textMuted}}>Strong Virtues</div>
-                  <div style={{fontSize:32, fontWeight:800, color: teamStats.strongPercent > 70 ? C.green : C.orange}}>{teamStats.strongPercent}%</div>
-                </div>
-                <div>
-                  <div style={{fontSize:13, color:C.textMuted}}>Athletes Tracked</div>
-                  <div style={{fontSize:32, fontWeight:800}}>{teamStats.totalAthletes}</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:28}}>
-            <h1 style={{fontSize:28, fontWeight:800}}>My Athletes</h1>
-            <button onClick={()=>setEditing(BLANK_ATHLETE)} style={{background:C.orange, color:"#fff", border:"none", padding:"12px 28px", borderRadius:12, fontWeight:700}}>＋ Add Athlete</button>
-          </div>
-
-          {athletes.length === 0 ? (
-            <div style={{textAlign:"center", padding:"120px 20px", color:"#666"}}>
-              <div style={{fontSize:80}}>⚽️🏀🏈</div>
-              <div style={{fontSize:24, margin:"20px 0"}}>Start building your team’s character</div>
-              <button onClick={()=>setEditing(BLANK_ATHLETE)} style={{background:C.orange, color:"#fff", padding:"14px 36px", borderRadius:12, fontSize:17, fontWeight:700}}>Add Your First Athlete</button>
-            </div>
-          ) : (
-            <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(310px, 1fr))", gap:20}}>
-              {athletes.map(p => {
-                const combo = getCombo(p.scores);
-                return (
-                  <div key={p.id} style={{background:"#fff", border:`1px solid ${C.border}`, borderRadius:16, padding:22, boxShadow:"0 6px 20px rgba(0,0,0,0.07)", position:"relative"}}>
-                    <button 
-                      onClick={(e)=>{e.stopPropagation(); setDeleteConfirm(p);}} 
-                      className="delete-btn" 
-                      style={{position:"absolute", top:12, right:12}}
-                    >
-                      🗑
-                    </button>
-                    
-                    <div onClick={()=>setViewing(p)} style={{cursor:"pointer"}}>
-                      <div style={{fontSize:22, fontWeight:800, marginBottom:8}}>{p.name}</div>
-                      {p.role && <div style={{color:C.textSub, marginBottom:12}}>{p.role}</div>}
-                      
-                      <div style={{display:"flex", gap:8, flexWrap:"wrap", marginBottom:16}}>
-                        {Object.entries(p.scores).map(([k,v]) => (
-                          <div key={k} style={{background:VIRTUES[k].bg, padding:"6px 10px", borderRadius:8, fontSize:14}}>{VIRTUES[k].icon} {v}</div>
-                        ))}
-                      </div>
-
-                      <div style={{marginBottom:12}}>
-                        <div className="progress-bar">
-                          <div className="progress-fill" style={{width: `${combo.progress}%`, background: combo.progress > 80 ? "linear-gradient(90deg,#00b36b,#34d399)" : combo.progress > 50 ? "linear-gradient(90deg,#ff8c00,#ffaa00)" : "#dc3545"}} />
-                        </div>
-                      </div>
-
-                      <div style={{fontSize:13, color:C.textMuted}}>Last updated: {p.lastUpdated ? new Date(p.lastUpdated).toLocaleDateString() : "Never"}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {tab === "playbook" && (
-        <div style={{padding:24, maxWidth:820, margin:"0 auto"}}>
-          <h2 style={{color:C.orange, marginBottom:8}}>The Seven Virtues</h2>
-          <p style={{color:C.textSub, marginBottom:32}}>Fruit of the Spirit applied to youth sports.</p>
-          {Object.values(VIRTUES).map(t => (
-            <div key={t.key} style={{marginBottom:24, background:"#fff", border:`1px solid ${t.border}`, borderRadius:16, padding:24}}>
-              <div style={{display:"flex", alignItems:"center", gap:16}}>
-                <span style={{fontSize:48}}>{t.icon}</span>
-                <div>
-                  <div style={{fontSize:22, fontWeight:800, color:t.color}}>{t.label}</div>
-                  <div style={{color:C.textSub}}>"{t.tagline}"</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {editing && <EditModal person={editing} onSave={saveAthlete} onClose={()=>setEditing(null)} />}
-      {viewing && <PersonDetail person={viewing} onClose={()=>setViewing(null)} onEdit={p=>{setViewing(null); setEditing(p);}} />}
-      {deleteConfirm && <ConfirmDelete name={deleteConfirm.name} onConfirm={()=>deleteAthlete(deleteConfirm.id)} onCancel={()=>setDeleteConfirm(null)} />}
-    </div>
-  );
+function addStar(n) {
+  stars += (n || 1);
+  localStorage.setItem("hs_s", stars);
+  document.getElementById("sc").textContent = stars;
 }
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(React.createElement(App));
+// ─── WIKI API (silent fail) ───
+async function apiFetch(params) {
+  var url = new URL(WIKI_URL);
+  url.searchParams.set("format","json");
+  url.searchParams.set("origin","*");
+  for (var k in params) { url.searchParams.set(k, params[k]); }
+  var ctrl = new AbortController();
+  var tid = setTimeout(function(){ ctrl.abort(); }, 6000);
+  try {
+    var res = await fetch(url.toString(), { signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return await res.json();
+  } catch(e) { clearTimeout(tid); throw e; }
+}
+
+async function wikiSearch(q) {
+  var d = await apiFetch({ action:"opensearch", search:q, limit:8, namespace:0 });
+  var titles = d[1] || [], descs = d[2] || [];
+  return titles.map(function(t,i){ return { title:t, desc:descs[i]||"" }; });
+}
+
+async function wikiExtract(title) {
+  var d = await apiFetch({ action:"query", titles:title, prop:"extracts|info", exintro:true, explaintext:true, inprop:"url", redirects:true });
+  var page = Object.values(d.query.pages)[0];
+  if (page.missing !== undefined) return null;
+  return { title:page.title, extract:page.extract||"", url:page.fullurl||("https://www.hrwiki.org/wiki/"+encodeURIComponent(page.title.replace(/ /g,"_"))) };
+}
+
+async function pingWiki() {
+  try {
+    await apiFetch({ action:"query", meta:"siteinfo", siprop:"general" });
+    wikiOK = true;
+    document.getElementById("wsd").classList.remove("off");
+    document.getElementById("wst").textContent = "HRWiki connected: 3,413 articles available";
+  } catch(e) {
+    document.getElementById("wst").textContent = "HRWiki offline: all local content available";
+  }
+}
+
+// ─── SEARCH ───
+var stimer = null;
+document.getElementById("globalSearch").addEventListener("input", function(){
+  clearTimeout(stimer);
+  var q = this.value.trim();
+  if (q.length < 2) { closeDD(); return; }
+  stimer = setTimeout(function(){ runSearch(q); }, 300);
+});
+document.addEventListener("click", function(e){ if (!e.target.closest(".search-wrap")) closeDD(); });
+
+function closeDD() { document.getElementById("dd").classList.remove("open"); }
+
+async function runSearch(q) {
+  if (!q || q.length < 2) return;
+  var ql = q.toLowerCase();
+  var res = [];
+  CHARS.forEach(function(c){ if (c.name.toLowerCase().includes(ql)||c.tag.toLowerCase().includes(ql)||c.desc.toLowerCase().includes(ql)) res.push({ type:"c", id:c.id, name:c.name, sub:c.tag, em:c.emoji }); });
+  EPS.forEach(function(e){ if (e.name.toLowerCase().includes(ql)||e.desc.toLowerCase().includes(ql)||e.num.toLowerCase().includes(ql)) res.push({ type:"e", id:e.id, name:e.name, sub:e.num+": "+e.desc.slice(0,50)+"...", em:e.emoji }); });
+  GAGS.forEach(function(g){ if (g.name.toLowerCase().includes(ql)||g.tag.toLowerCase().includes(ql)||g.desc.toLowerCase().includes(ql)) res.push({ type:"g", id:g.id, name:g.name, sub:g.tag, em:"&#128514;" }); });
+  renderDD(res);
+  if (wikiOK) {
+    try {
+      var wr = await wikiSearch(q);
+      wr.forEach(function(r){ if (!res.some(function(x){ return x.name.toLowerCase()===r.title.toLowerCase(); })) res.push({ type:"w", name:r.title, sub:r.desc||"HRWiki article", em:"&#128218;", wt:r.title }); });
+      renderDD(res);
+    } catch(e) {}
+  }
+}
+
+function renderDD(res) {
+  var dd = document.getElementById("dd");
+  if (!res.length) { dd.innerHTML="<div class='dempty'>No results found &mdash; try 'trogdor' or 'strong badia'</div>"; dd.classList.add("open"); return; }
+  dd.innerHTML = res.map(function(r){
+    var bc = r.type==="c"?"bc":r.type==="e"?"be":r.type==="g"?"bg":"bw";
+    var bl = r.type==="c"?"CHAR":r.type==="e"?"EPISODE":r.type==="g"?"GAG":"WIKI";
+    var fn;
+    if (r.type==="c") fn="showChar('"+r.id+"')";
+    else if (r.type==="e") fn="showEp('"+r.id+"')";
+    else if (r.type==="g") fn="showGag('"+r.id+"')";
+    else fn="showWiki('"+r.wt.replace(/'/g,"\\'")+"','&#128218;')";
+    return "<div class='ddi' onclick=\""+fn+";closeDD();document.getElementById('globalSearch').value=''\">"+
+      "<span class='dbadge "+bc+"'>"+bl+"</span>"+
+      "<div><div class='dname'>"+r.em+" "+r.name+"</div><div class='dsub'>"+r.sub+"</div></div></div>";
+  }).join("");
+  dd.classList.add("open");
+}
+
+function doWS(q) {
+  var el = document.getElementById("globalSearch");
+  el.value = q;
+  runSearch(q);
+  el.focus();
+}
+
+// ─── NAVIGATION ───
+function setDet(html) {
+  document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+  document.getElementById("view-detail").classList.add("active");
+  document.getElementById("dc").innerHTML = html;
+  window.scrollTo(0,0);
+}
+
+function goHome() {
+  navHist = [];
+  document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+  document.getElementById("view-home").classList.add("active");
+  document.querySelectorAll(".tab").forEach(function(t,i){ t.classList.toggle("active", i===0); });
+  window.scrollTo(0,0);
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  document.getElementById("view-"+name).classList.add("active");
+  btn.classList.add("active");
+  navHist = [];
+  window.scrollTo(0,0);
+}
+
+function goBack() {
+  navHist.pop();
+  if (!navHist.length) { goHome(); return; }
+  var p = navHist[navHist.length-1];
+  if (p.type==="c") showChar(p.id, false);
+  else if (p.type==="e") showEp(p.id, false);
+  else if (p.type==="g") showGag(p.id, false);
+  else showWiki(p.wt, p.em, false);
+}
+
+// ─── DETAIL HELPERS ───
+function wikiUrl(t) { return "https://www.hrwiki.org/wiki/"+encodeURIComponent(t.replace(/ /g,"_")); }
+
+function makePanel(emoji, title, typeLabel, extractHtml, wikiTitle, accentColor) {
+  return "<div class='wp' style='border-top-color:"+(accentColor||"var(--yellow)")+"'>"+
+    "<div class='wph'><div class='wpe'>"+emoji+"</div><div class='wpt'><h1>"+title+"</h1><span class='wtype'>"+typeLabel+"</span></div></div>"+
+    "<div class='wext' id='_ext'>"+extractHtml+"</div>"+
+    "<a class='wlink' id='_lnk' href='"+wikiUrl(wikiTitle)+"' target='_blank' rel='noopener'>&#128218; Read Full Article on HRWiki &rarr;</a>"+
+    "</div>";
+}
+
+function tryWikiEnrich(wikiTitle) {
+  wikiExtract(wikiTitle).then(function(art){
+    var el = document.getElementById("_ext");
+    if (!el || !art || !art.extract) return;
+    var txt = art.extract.length > 700 ? art.extract.slice(0,700).replace(/\s\S*$/,"")+"..." : art.extract;
+    el.innerHTML = txt.replace(/\n/g,"<br>");
+    var lk = document.getElementById("_lnk");
+    if (lk && art.url) lk.href = art.url;
+  }).catch(function(){});
+}
+
+// ─── CHAR DETAIL ───
+function showChar(id, push) {
+  if (push !== false) navHist.push({ type:"c", id:id });
+  var c = CHARS.find(function(x){ return x.id===id; });
+  if (!c) return;
+  addStar();
+  var others = CHARS.filter(function(x){ return x.id!==id; }).map(function(x){
+    return "<span class='chip' onclick=\"showChar('"+x.id+"')\">"+x.emoji+" "+x.name+"</span>";
+  }).join("");
+  setDet(
+    "<div style='max-width:820px;margin:0 auto'>"+
+    "<button class='back' onclick='goBack()'>&#8592; Back</button>"+
+    makePanel(c.emoji, c.name, "Character", "<em>"+c.desc+"</em>", c.wiki, "var(--yellow)")+
+    "<div class='dsec'><h3>Other Characters</h3><div class='chips'>"+others+"</div></div>"+
+    "</div>"
+  );
+  tryWikiEnrich(c.wiki);
+}
+
+// ─── EP DETAIL ───
+function showEp(id, push) {
+  if (push !== false) navHist.push({ type:"e", id:id });
+  var e = EPS.find(function(x){ return x.id===id; });
+  if (!e) return;
+  addStar();
+  var others = EPS.filter(function(x){ return x.id!==id; }).map(function(x){
+    return "<span class='chip' onclick=\"showEp('"+x.id+"')\">"+x.emoji+" "+x.name+"</span>";
+  }).join("");
+  setDet(
+    "<div style='max-width:820px;margin:0 auto'>"+
+    "<button class='back' onclick='goBack()'>&#8592; Back</button>"+
+    makePanel(e.emoji, e.name, e.num, e.full, e.wiki, "var(--blue)")+
+    "<div class='dsec'><h3>More Episodes</h3><div class='chips'>"+others+"</div></div>"+
+    "</div>"
+  );
+  tryWikiEnrich(e.wiki);
+}
+
+// ─── GAG DETAIL ───
+function showGag(id, push) {
+  if (push !== false) navHist.push({ type:"g", id:id });
+  var g = GAGS.find(function(x){ return x.id===id; });
+  if (!g) return;
+  addStar();
+  var others = GAGS.filter(function(x){ return x.id!==id; }).map(function(x){
+    return "<span class='chip' onclick=\"showGag('"+x.id+"')\">"+x.name+"</span>";
+  }).join("");
+  setDet(
+    "<div style='max-width:820px;margin:0 auto'>"+
+    "<button class='back' onclick='goBack()'>&#8592; Back</button>"+
+    "<div class='wp' style='border-top-color:var(--green)'>"+
+      "<div class='wph'><div class='wpe'>&#128514;</div><div class='wpt'><h1>"+g.name+"</h1><span class='wtype'>Running Gag</span></div></div>"+
+      "<div style='font-size:14px;color:var(--yellow);font-style:italic;margin-bottom:12px'>"+g.tag+"</div>"+
+      "<div class='wext' id='_ext'>"+g.desc+"</div>"+
+      "<a class='wlink' id='_lnk' href='"+wikiUrl(g.wiki)+"' target='_blank' rel='noopener'>&#128218; Read Full Article on HRWiki &rarr;</a>"+
+    "</div>"+
+    "<div class='dsec'><h3>Other Running Gags</h3><div class='chips'>"+others+"</div></div>"+
+    "</div>"
+  );
+  tryWikiEnrich(g.wiki);
+}
+
+// ─── WIKI ARTICLE ───
+async function showWiki(title, emoji, push) {
+  emoji = emoji || "&#128218;";
+  if (push !== false) navHist.push({ type:"w", wt:title, em:emoji });
+  addStar();
+  setDet(
+    "<div style='max-width:820px;margin:0 auto'>"+
+    "<button class='back' onclick='goBack()'>&#8592; Back</button>"+
+    "<div class='wp'>"+
+      "<div class='wph'><div class='wpe'>"+emoji+"</div><div class='wpt'><h1>"+title+"</h1><span class='wtype'>HRWiki Article</span></div></div>"+
+      "<div class='wext' id='_ext' style='color:var(--muted);font-style:italic'>Loading from HRWiki...</div>"+
+      "<a class='wlink' id='_lnk' href='"+wikiUrl(title)+"' target='_blank' rel='noopener'>&#128218; Read on HRWiki &rarr;</a>"+
+    "</div></div>"
+  );
+  try {
+    var art = await wikiExtract(title);
+    var el = document.getElementById("_ext");
+    if (!el) return;
+    if (!art) { el.innerHTML = "<em>Article not found on HRWiki.</em>"; return; }
+    var txt = art.extract.length>700 ? art.extract.slice(0,700).replace(/\s\S*$/,"")+"..." : art.extract;
+    el.innerHTML = txt.replace(/\n/g,"<br>") || "<em>No extract available.</em>";
+    el.style.color = ""; el.style.fontStyle = "";
+    var lk = document.getElementById("_lnk");
+    if (lk && art.url) lk.href = art.url;
+  } catch(e) {
+    var el2 = document.getElementById("_ext");
+    if (el2) el2.innerHTML = "<em>Wiki unavailable in offline/local mode. Click the link above to read directly on HRWiki.</em>";
+  }
+}
+
+// ─── WIKI SEARCH TAB ───
+async function runWS(q) {
+  if (!q) return;
+  var el = document.getElementById("wr");
+  el.innerHTML = "<div style='color:var(--green);font-style:italic;padding:20px'>Searching HRWiki for \""+q+"\"...</div>";
+  try {
+    var res = await wikiSearch(q);
+    if (!res.length) { el.innerHTML="<div class='gc'><p>No results found on HRWiki.</p></div>"; return; }
+    el.innerHTML = res.map(function(r){
+      return "<div class='gc' onclick=\"showWiki('"+r.title.replace(/'/g,"\\'")+"','&#128218;')\">"+
+        "<h3>"+r.title+"</h3><p>"+(r.desc||"HRWiki article &mdash; click to read")+"</p></div>";
+    }).join("");
+  } catch(e) {
+    el.innerHTML="<div class='gc'><p>Wiki search unavailable in offline/local mode. <a href='https://www.hrwiki.org/wiki/Special:Search?search="+encodeURIComponent(q)+"' target='_blank' style='color:var(--yellow)'>Search HRWiki directly &rarr;</a></p></div>";
+  }
+}
+
+// ─── RENDER GRIDS ───
+function charCard(c) {
+  return "<div class='card' onclick=\"showChar('"+c.id+"')\">"+
+    "<span class='cem'>"+c.emoji+"</span>"+
+    "<div class='cnm'>"+c.name+"</div>"+
+    "<div class='csub'>"+c.tag+"</div>"+
+    "<span class='ctag'>Character</span></div>";
+}
+function epCard(e) {
+  return "<div class='card' onclick=\"showEp('"+e.id+"')\">"+
+    "<span class='cem'>"+e.emoji+"</span>"+
+    "<div class='cnm'>"+e.name+"</div>"+
+    "<div class='csub'>"+e.num+"</div>"+
+    "<div class='csub' style='margin-top:4px'>"+e.desc.slice(0,60)+"...</div>"+
+    "<span class='ctag'>Episode</span></div>";
+}
+function gagCard(g) {
+  return "<div class='card' onclick=\"showGag('"+g.id+"')\">"+
+    "<span class='cem'>&#128514;</span>"+
+    "<div class='cnm'>"+g.name+"</div>"+
+    "<div class='csub'>"+g.tag+"</div>"+
+    "<span class='ctag'>Running Gag</span></div>";
+}
+
+document.getElementById("hcg").innerHTML = CHARS.slice(0,6).map(charCard).join("");
+document.getElementById("cg").innerHTML  = CHARS.map(charCard).join("");
+document.getElementById("heg").innerHTML = EPS.slice(0,4).map(epCard).join("");
+document.getElementById("eg").innerHTML  = EPS.map(epCard).join("");
+document.getElementById("hgg").innerHTML = GAGS.slice(0,4).map(gagCard).join("");
+document.getElementById("gl").innerHTML  = GAGS.map(function(g){
+  return "<div class='gc' onclick=\"showGag('"+g.id+"')\">"+
+    "<h3>"+g.name+"</h3><div class='gtag'>"+g.tag+"</div><p>"+g.desc.slice(0,160)+"...</p></div>";
+}).join("");
+
+document.getElementById("fp").innerHTML = PATHS.map(function(p){
+  return "<div class='fp'><h3>"+p.title+"</h3><p>"+p.desc+"</p><ul class='flist'>"+
+    p.items.map(function(i){
+      return "<li onclick=\"showWiki('"+i.wiki.replace(/'/g,"\\'")+"','&#128218;')\">"+
+        "<span class='fnum'>"+i.num+"</span>"+i.label+
+        "<span class='fnote'>&rarr; wiki</span></li>";
+    }).join("")+
+    "</ul></div>";
+}).join("");
+
+// ─── FAKE STATUS ───
+var sMsgs = [
+  "Connecting to HRWiki...",
+  "Asking Strong Bad about this. He said delete.",
+  "Consulting The Cheat. He made a sound.",
+  "Coach Z typing: Great jorb using this app, fellar.",
+  "Homsar says: AaAaAa. I am a reasonable adult.",
+  "Burninating the data pipeline...",
+  "Population of this app: You. And The Tire.",
+  "Strong Sad disagrees with these search results.",
+  "The Poopsmith is indexing. In silence.",
+  "Wiki articles available: 3,413. Trogdor articles: 1. Perfect."
+];
+var si = 0;
+setInterval(function(){
+  si = (si+1) % sMsgs.length;
+  var el = document.getElementById("fst");
+  if (el) el.textContent = sMsgs[si];
+}, 4000);
+
+// ─── EASTER EGGS ───
+var insults = [
+  "Oh great. Another user. Strong Bad is thrilled.",
+  "The Cheat! Someone is using the app!",
+  "Holy crap, you found the secret star.",
+  "Strong Badia welcomes you. Population: Tire, and now you.",
+  "Great jorb finding that. Coach Z is proud of you, fella.",
+  "DELETED! Just kidding. You can stay.",
+  "Homsar says: AaAaAa. That is a real popular click.",
+  "Strong Sad does not think you will stick around. Prove him wrong.",
+  "The Poopsmith has noted your presence. In silence."
+];
+
+function showToast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 4500);
+}
+function showAch(title, sub) {
+  var a = document.getElementById("ach");
+  a.innerHTML = "<div class='ach-lbl'>&#127942; ACHIEVEMENT UNLOCKED</div>"+title+"<br><small style='font-size:9px'>"+sub+"</small>";
+  a.classList.add("show");
+  setTimeout(function(){ a.classList.remove("show"); }, 4500);
+}
+
+function placeStar() {
+  var s = document.getElementById("hstar");
+  s.style.bottom = (Math.random()*180+80)+"px";
+  s.style.left   = (Math.random()*(window.innerWidth-60)+20)+"px";
+}
+placeStar();
+
+function clickStar() {
+  addStar();
+  showToast(insults[Math.floor(Math.random()*insults.length)]);
+  if (stars===1)  showAch("First Blood",        "You found the secret star. The Cheat is disappointed it was not harder.");
+  if (stars===5)  showAch("Pretty Dumb, Actually","Five discoveries. Strong Bad remains unimpressed.");
+  if (stars===10) showAch("TROGDOR!",            "Ten stars. The Tire accepts you.");
+  if (stars===25) showAch("Population: You",     "25 discoveries. Strong Badia has a new citizen.");
+  placeStar();
+}
+
+setInterval(function(){ if (Math.random()>0.5) showToast(insults[Math.floor(Math.random()*insults.length)]); }, 120000);
+
+var ltaps = 0;
+document.querySelector(".logo").addEventListener("click", function(){
+  ltaps++;
+  if (ltaps===7){ showToast("You clicked the logo 7 times. The Brothers Chaps are watching."); addStar(); ltaps=0; }
+});
+
+var KK = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+var KM = [
+  "Whoa. You entered the Konami code. Strong Bad is actually impressed. Do not tell him.",
+  "HOLY CRAP! Strong Badia officially recognizes you as an honorary citizen. Population: Tire, and you.",
+  "AaAaAaAaA. The cheat code has been entered. I am the captain of the cheat codes. &mdash; Homsar",
+  "Great jorb entering that code, fella. That is a real great jorb. &mdash; Coach Z"
+];
+var ki = 0;
+document.addEventListener("keydown", function(e){
+  ki = (e.key===KK[ki]) ? ki+1 : 0;
+  if (ki===KK.length){ document.getElementById("kmsg").innerHTML=KM[Math.floor(Math.random()*KM.length)]; document.getElementById("konami").classList.add("show"); addStar(3); ki=0; }
+});
+
+// ─── INIT ───
+pingWiki();
+setTimeout(function(){ showToast("Welcome to Free Country, USA. Click any character to start."); }, 1500);
 </script>
 </body>
 </html>
